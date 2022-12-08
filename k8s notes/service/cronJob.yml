@@ -1,0 +1,23 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cronjob
+spec:
+  successfulJobsHistoryLimit: 1
+  # failedJobsHistoryLimit: 2
+  # suspend: true
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          name: job-pod
+          labels:
+            app: myapp
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            command: ["sleep","1"]
+          restartPolicy: Never
+      

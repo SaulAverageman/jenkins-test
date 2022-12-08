@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-w-strategy
+  labels:
+    env: prod
+spec:
+  strategy:
+     rollingUpdate:
+       maxSurge: 100%
+       maxUnavailable: 25%
+     type: RollingUpdate
+  #strategy:
+  #  type: Recreate
+  replicas: 10
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: nginx-container
+        image: httpd
+      

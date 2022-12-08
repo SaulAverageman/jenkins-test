@@ -1,0 +1,4 @@
+manual
+1 create pv
+2 create pvc
+3 create pod with pvc

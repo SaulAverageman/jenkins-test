@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hostingressdemo
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: blaaallah1.com
+      http:
+        paths: 
+        - path: /
+          pathType: Prefix
+          backend: 
+            service: 
+              name: hr-svc
+              port:
+                number: 80
+    - host: blaaallah2.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: 
+                name: finance-svc
+                port:
+                  number: 80

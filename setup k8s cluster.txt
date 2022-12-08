@@ -1,0 +1,57 @@
+---
+- hosts: allnodes
+  become: yes
+  tasks:
+  - name: add pre-requisites
+    shell: |
+      echo "172.31.24.29  k8s-control" >> /etc/hosts
+      echo "172.31.19.122  k8s-worker1" >> /etc/hosts
+      echo "172.31.27.53 k8s-worker2" >> /etc/hosts
+      touch /etc/modules-load.d/containerd.conf
+      echo "overlay" >> /etc/modules-load.d/containerd.conf
+      echo "br_netfilter" >> /etc/modules-load.d/containerd.conf
+      touch /etc/sysctl.d/99-kubernetes-cri.conf
+      echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.d/99-kubernetes-cri.conf
+      echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-kubernetes-cri.conf
+      echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.d/99-kubernetes-cri.conf
+      sysctl --system
+  - name: packages
+    apt:
+      update_cache: yes
+      name:
+      - containerd
+      - apt-transport-https
+      - curl
+  - name: containerd config
+    shell: |
+      swapoff -a
+      curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+      mkdir -p /etc/containerd
+  - name: create kubernetes.list
+    file:
+      path: "/etc/apt/sources.list.d/kubernetes.list"
+      state: touch
+  - name: add repo link
+    shell: echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+  - name: actual k8s install
+    apt:
+      update_cache: yes
+      name:
+      - kubelet
+      - kubeadm
+      - kubectl
+  - name: start modules
+    shell: |
+      sudo modprobe overlay
+      sudo modprobe br_netfilter
+
+################ after above steps
+**modprobe overlay
+  modprobe br_filter
+1) sudo kubeadm init --pod-network-cird <cidr>
+2) mkdir -p $HOME/.kube
+3) sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+4) sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+5) kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+6) kubeadm token create --print-join-token

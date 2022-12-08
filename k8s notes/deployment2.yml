@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    mah-notation: "check check"
+    kubernetes.io/change-cause: "httpd v2.4 added"
+  name: myapp-deploy
+  labels:
+    env: prod
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+      - name: httpd-container
+        image: httpd:2.4
