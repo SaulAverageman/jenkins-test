@@ -4,7 +4,7 @@ pipeline{
         stage("any"){
             steps{
                 script{
-                    prop= readProperties file "setup k8s cluster.txt"
+                    prop= readProperties file: "setup k8s cluster.txt"
                     println prop
                 }
             }
